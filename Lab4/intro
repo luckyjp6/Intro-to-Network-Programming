@@ -1,0 +1,3 @@
+名：Multi-client
+目標：了解如何架設能夠同時服務多個client的server，並學習使用fork和dup。
+實作內容：透過fork出children處理新連線的方式同時服務多個client，主程式只負責接收連線，並處理terminate的children。
