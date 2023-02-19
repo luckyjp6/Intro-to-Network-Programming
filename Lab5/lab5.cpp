@@ -21,7 +21,7 @@
 #define OPEN_MAX 1024
 #define MSG_SIZE 300
 
-struct client_info {
+struct Client_info {
     char name[25];
     sockaddr_in addr;
 };
@@ -40,7 +40,7 @@ struct broadcast_msg{
 
 int maxi = 0, nready, i;
 int num_user = 0;
-client_info client_info[OPEN_MAX];
+Client_info client_info[OPEN_MAX];
 pollfd client[OPEN_MAX];
 std::vector<broadcast_msg> b_msg;
 
@@ -76,6 +76,7 @@ void close_client(int index) {
     printf("* client %s:%d disconnected\n", inet_ntoa(client_info[index].addr.sin_addr), client_info[index].addr.sin_port);
 }
 
+// print the current time to specific connection
 void write_time(int index) {
     time_t curtime;
     time(&curtime);
@@ -119,13 +120,9 @@ int main(int argc, char **argv)
 {
 	int					listenfd, connfd;
 	pid_t				childpid;
-	socklen_t			clilen;
-	sockaddr_in	cliaddr, servaddr;
+	sockaddr_in	        cliaddr, servaddr;
+	socklen_t			clilen = sizeof(cliaddr);
 	void				sig_chld(int);
-
-    clilen = sizeof(cliaddr);
-	
-    listenfd = socket(AF_INET, SOCK_STREAM, 0);
 
     if (argc < 2) {
         printf("Usage: ./a.out [port]\n");
@@ -133,31 +130,32 @@ int main(int argc, char **argv)
     }
 
 	int port_num = 0;
-	for (int i = 0; i < sizeof(argv[1]); i++) {
-        if (argv[1][i] == '\0') break;
-        port_num *= 10;
-        port_num += argv[1][i] - '0';
-    }
+    sscanf(argv[1], "%d", &port_num);
 
+    // set server sockaddr_in
 	bzero(&servaddr, sizeof(servaddr));
 	servaddr.sin_family      = AF_INET;
-	servaddr.sin_addr.s_addr = htonl(0);//INADDR_ANY);
-	servaddr.sin_port        = htons(port_num);//argv[1]);
+	servaddr.sin_addr.s_addr = htonl(0);
+	servaddr.sin_port        = htons(port_num);
 
 	if (bind(listenfd, (const sockaddr *) &servaddr, sizeof(servaddr)) < 0) {
 		printf("failed to bind\n");
 		return -1;
 	}
 
-	listen(listenfd, 1024);
+	listenfd = socket(AF_INET, SOCK_STREAM, 0);
+    listen(listenfd, 1024);
+
+    // reset each entry (used for poll)
+    for (i = 0; i < OPEN_MAX; i++)
+        client[i].fd = -1; /* -1: available entry */
     
-    client[0].fd = listenfd;
+    // add event
+    client[0].fd = listenfd; // the socket that listen for new connection
     client[0].events = POLLRDNORM;
 
-    for (i = 1; i < OPEN_MAX; i++)
-        client[i].fd = -1; /* -1: available entry */
-
-	for ( ; ; ) {
+	while (1) {
+        // wait for any event happen
         nready = poll(client, maxi+1, -1);
         
         // new client
@@ -177,13 +175,14 @@ int main(int argc, char **argv)
                 continue;
             }
 
+            // print welcome message
             char welcome_msg[] = "*** Welcome to the simple CHAT server\n";
             write_time(i);
             write(connfd, welcome_msg, sizeof(welcome_msg));
             
             write_time(i);
             char nick_name[25];
-            sprintf(nick_name, "%s %s", adjs[rand()%800], animals[rand()%800]);
+            sprintf(nick_name, "%s %s", adjs[rand()%800], animals[rand()%800]); // random nickname
             memset(client_info[i].name, ' ', sizeof(nick_name));
             strcpy(client_info[i].name, nick_name);
        
@@ -192,6 +191,7 @@ int main(int argc, char **argv)
             sprintf(msg, "Total %d users online now. Your name is <%s>\n", num_user, nick_name);
             write(connfd, msg, sizeof(msg));
 
+            // set broadcast message
             broadcast_msg announce;
             memset(announce.msg, '\0', MSG_SIZE);
             sprintf(announce.msg, "*** User <%s> has just landed on the server\n", nick_name);
@@ -214,16 +214,18 @@ int main(int argc, char **argv)
         char buf[MSG_SIZE-50];
         
         for (i = 1; i <= maxi; i++) {
-            if ( (sockfd = client[i].fd) < 0) continue;
-            if (client[i].revents & (POLLRDNORM | POLLERR)) {
+            if ( (sockfd = client[i].fd) < 0) continue; /* empty entry */
+            // got an event
+            if (client[i].revents & (POLLRDNORM | POLLERR)) { 
                 memset(buf, '\0', sizeof(buf));
-                if ( (n = read(sockfd, buf, MSG_SIZE-50)) < 0) { // read input
-                    if (errno == ECONNRESET) { /* connection reset by client */
-                        close_client(i);
-                    } else err_sys("read error");
-                } else if (n == 0) { /* connection closed by client */                   
-                    close_client(i);
-                } else { // read command
+                
+                // read input 
+                if ( (n = read(sockfd, buf, MSG_SIZE-50)) < 0) { /* got error*/
+                    if (errno == ECONNRESET) close_client(i); /* connection reset by client */
+                    else err_sys("read error");
+                } 
+                else if (n == 0) close_client(i); /* connection closed by client */
+                else { /* read command */
                     if (buf[0] != '/') {
                         broadcast_msg tmp;
                         memset(tmp.msg, '\0', MSG_SIZE);
