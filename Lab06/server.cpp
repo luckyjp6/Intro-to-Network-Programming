@@ -28,20 +28,17 @@ int maxi, num_user;
 long long int byte_counter = 0;
 pollfd client[OPEN_MAX];
 
-struct Client_info 
-{
+struct Client_info {
     int connfd;
     sockaddr_in addr;
 }; 
 
-void init() 
-{
+void init() {
     maxi = 1; num_user = 0;
     for (int i = 1; i < OPEN_MAX; i++) client[i].fd = -1; /* -1: available entry */
 }
 
-int my_connect(int &listenfd, int port, sockaddr_in &servaddr)
-{
+int my_connect(int &listenfd, int port, sockaddr_in &servaddr) {
     listenfd = socket(AF_INET, SOCK_STREAM, 0);
     int reuse = 1;
     setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, (const void *)&reuse, sizeof(reuse));
@@ -62,18 +59,15 @@ int my_connect(int &listenfd, int port, sockaddr_in &servaddr)
     return 1;
 }
 
-int time_diff(timeval *start, timeval *end)
-{
+int time_diff(timeval *start, timeval *end) {
     return end->tv_sec - start->tv_sec + 0.0;
 }
 
-double my_time(timeval t)
-{
+double my_time(timeval t) {
     return t.tv_sec + 1e-6*t.tv_usec;
 }
 
-void handle_new_connection(const int listenfd, Client_info new_client)
-{
+void handle_new_connection(const int listenfd, Client_info new_client) {
     sockaddr_in cliaddr;
     socklen_t clilen = sizeof(cliaddr);
     
@@ -104,8 +98,7 @@ void handle_new_connection(const int listenfd, Client_info new_client)
     num_user++;
 }
 
-void close_client(int index) 
-{
+void close_client(int index) {
     int connfd = client[index].fd;
 
     close(connfd);
@@ -113,10 +106,8 @@ void close_client(int index)
     num_user--;
 }
 
-int main(int argc, char **argv)
-{
-	if (argc < 2) 
-    {
+int main(int argc, char **argv) {
+	if (argc < 2) {
         printf("Usage: ./a.out [port]\n");
         return -1;
     }
@@ -138,46 +129,36 @@ int main(int argc, char **argv)
     Client_info tmp_client;
     timeval start, now;
     gettimeofday(&start, NULL); 
-	for ( ; ; ) 
-    {
+	for ( ; ; ) {
         nready = poll(client, maxi+1, -1);
         
         // new client
-        if (client[0].revents & POLLRDNORM) 
-        {
+        if (client[0].revents & POLLRDNORM) {
             handle_new_connection(listen_command, tmp_client);
             nready--;
         }
-        
         if (client[1].revents & POLLRDNORM) {
             handle_new_connection(listen_data, tmp_client);
             nready--;
         }
         
-        /* check all clients */
+        // check all clients
 		int sockfd, n;
         char buf[MSG_SIZE]; 
         
-        for (i = 2; i <= maxi; i++) 
-        {
+        for (i = 2; i <= maxi; i++) {
             if ((sockfd = client[i].fd) < 0) continue;
-            if (client[i].revents & (POLLRDNORM | POLLERR)) 
-            {
-                /* read input*/
+            if (client[i].revents & (POLLRDNORM | POLLERR)) {
+                // read input
                 memset(buf, '\0', MSG_SIZE);
 
-                if ( (n = read(sockfd, buf, MSG_SIZE-50)) < 0) 
-                { 
-                    close_client(i); /* connection reset by client */
-                } 
+                if ( (n = read(sockfd, buf, MSG_SIZE-50)) < 0) close_client(i); /* connection reset by client */
                 else if (n == 0) close_client(i); /* connection closed by client */
-                else 
-                {
+                else { /* read command */
                     int buf_len = strlen(buf);
                     char *command = strtok(buf, " \n\r");
-                    /* read command */
-                    if (strcmp(command, "/reset") == 0) 
-                    {
+                    
+                    if (strcmp(command, "/reset") == 0) {
                         char msg[MSG_SIZE];
                         gettimeofday(&start, NULL);
                         
@@ -185,16 +166,14 @@ int main(int argc, char **argv)
                         write(sockfd, msg, strlen(msg));
                         byte_counter = 0;
                     }
-                    else if (strcmp(command, "/ping") == 0)
-                    {
+                    else if (strcmp(command, "/ping") == 0){
                         char msg[MSG_SIZE];
                         gettimeofday(&now, NULL);
 
                         sprintf(msg, "%f PONG\n", my_time(now));
                         write(sockfd, msg, strlen(msg));
                     }
-                    else if (strcmp(command, "/report") == 0)
-                    {
+                    else if (strcmp(command, "/report") == 0) {
                         char msg[MSG_SIZE];
                         gettimeofday(&now, NULL);
                         
@@ -204,8 +183,7 @@ int main(int argc, char **argv)
                         sprintf(msg, "%f REPORT %lld %d %f\n", my_time(now), byte_counter, time_interval, sec);
                         write(sockfd, msg, strlen(msg));
                     }
-                    else if (strcmp(command, "/clients") == 0)
-                    {
+                    else if (strcmp(command, "/clients") == 0) {
                         char msg[MSG_SIZE];
                         gettimeofday(&now, NULL);
                         
@@ -219,6 +197,6 @@ int main(int argc, char **argv)
             }
         }
 	}
-    /* parent closes connected socket */
+    // parent closes connected socket
     close(connfd);
 }

@@ -26,7 +26,7 @@ struct Client_info {
     sockaddr_in addr;
 };
 
-struct broadcast_msg{
+struct broadcast_msg {
     int except;
     char msg[MSG_SIZE];
     int msg_size;
@@ -49,8 +49,7 @@ void err_sys(const char *err) {
     exit(1);
 }
 
-void time_format(char* tt, int tt_size)
-{  
+void time_format(char* tt, int tt_size) {  
     tm* cur;
     time_t curtime;
     time(&curtime);
@@ -116,8 +115,7 @@ void error_cmd(char *cmd, int to) {
     write(client[to].fd, msg, sizeof(msg));
 }
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
 	int					listenfd, connfd;
 	pid_t				childpid;
 	sockaddr_in	        cliaddr, servaddr;
