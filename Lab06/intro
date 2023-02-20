@@ -1,7 +1,0 @@
-名：Command/Data Channel
-目標：練習command和data由兩個不同channel傳輸的protocol要如何實作。
-實作內容：當client分別連上command和data channel之後，server開始計時，並於client傳送/report指令時匯報這段時間內client藉由data channel傳送資料的平均速率是多少，client也可以下/reset指令重置計時器。
-Command channel具體指令如：
-    (1)"/reset"  ：重設計時器
-    (3)"/report" ：回傳資料傳輸平均速率
-    (4)"/clients"：列出現有client數量

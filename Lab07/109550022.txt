@@ -1,5 +1,0 @@
-第一題: oracle 1和2的secrete有reentrant的問題，所以可以直接拿其中一支的answer餵給另外一支，以獲得flag
-第二題: oracle 1和2的random seed有reentrant的問題，可以直接拿其中一支秀答案時給的seed當作seed，根據程式邏輯，額外跑個5次rand()之後，用server generate secret的那段code去產生secret即可
-第三題: gethostbyname有reentrant的問題，用兩個thread分別去跑worker，兩個worker都會一直一直do_work，這裡可以稍微卡一下thread切換和gethostbyname合在一起導致的bug。首先用server給的request指令建兩條連線，兩條的port都要是10000，其中一條的host設定成localhost，另一條設成不會被localhost條件擋下來的連線(我用google.com)，之後靜靜等待時機，某個瞬間剛好google.com通過了localhost條件判斷之後，在連線之前，就這麼剛好切換成另一個worker(it takes time)，另一個worker至少執行gethostbyname一次(這應該挺容易)，啪ㄉㄚ˙恭喜獲得繞過了localhost條件判斷的localhost連線~~
-
-這個lab太帥了~
