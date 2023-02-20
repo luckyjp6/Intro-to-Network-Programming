@@ -40,7 +40,7 @@ struct my_packet {
     void add_ip_header (in_addr broadcast_addr, uint16_t &id) {
         ip_header.ip_hl = sizeof(ip)>>2;
         ip_header.ip_v = 4;
-        ip_header.ip_tos = 0; // not sure
+        ip_header.ip_tos = 0;
         ip_header.ip_len = (sizeof(ip) + sizeof(my_header) + my_hdr.frag_len);
         ip_header.ip_id = id++;
         ip_header.ip_off = 0;
@@ -54,6 +54,7 @@ struct my_packet {
     }
 }__attribute__((packed));
 
+// calculate checksum
 unsigned short cksum(void *in, int sz) {
     long sum = 0; 
     unsigned short *ptr = (unsigned short*)in;

@@ -3,7 +3,7 @@ using namespace std;
 
 char folder_path[200-20];
 
-struct my_file{
+struct my_file {
 	int id, len;
 	char buf[buf_size];
 
@@ -38,10 +38,6 @@ int main(int argc, char *argv[]) {
 	uint16_t 		ip_id = 1;
 	
 	strcpy(folder_path, argv[1]);
-	
-	// setvbuf(stdin, NULL, _IONBF, 0);
-	// setvbuf(stderr, NULL, _IONBF, 0);
-	// setvbuf(stdout, NULL, _IONBF, 0);
 
 	memset(&sin, 0, sizeof(sin));
 	sin.sin_family = AF_INET;
@@ -50,27 +46,26 @@ int main(int argc, char *argv[]) {
 		return -fprintf(stderr, "** cannot convert IPv4 address for %s\n", argv[1]);
 	}
 
-	if((s = socket(AF_INET, SOCK_RAW, 161)) < 0)
-	// if((s = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0)
-		err_quit("socket");
+	// use raw socket
+	if((s = socket(AF_INET, SOCK_RAW, 161)) < 0) err_quit("socket");
 	
-	// int snd_size = 1024*1024;
-    // if (setsockopt(s, SOL_SOCKET, SO_SNDBUF, &snd_size, sizeof(snd_size)) < 0) err_quit("failed to set send buffer size");
-    int on = 1;
+	// set socket option -- broadcast and raw socket
+	int on = 1;
     if (setsockopt(s, SOL_SOCKET, SO_BROADCAST, &on, sizeof(on)) < 0) err_quit("set broadcast");
     if (setsockopt(s, IPPROTO_IP, IP_HDRINCL, &on, sizeof(on)) < 0) err_quit("set ID_HDRINCL");
 
+	// connect
 	connect(s, (sockaddr*)(&sin), sizeof(sin));
 
+	// open all the files
 	for (int i = 0; i < num_file; i++) f[i].open_file(i);
 	
+	// send the data
 	for (int t = 0 ; t < 5; t++) {
-		for (int id = 0; id < num_file; id++)
-		{
+		for (int id = 0; id < num_file; id++) {
 			char *now = f[id].buf;
 			char *the_end = f[id].buf + f[id].len;
-			for (int frag = 0; now < the_end; now += payload_size, frag++)
-			{
+			for (int frag = 0; now < the_end; now += payload_size, frag++) {
 				my_packet pack;
 				pack.my_hdr.set(id, frag, f[id].len, min((int)payload_size, (int)(the_end - now)));
 				memcpy(pack.payload, now, min((int)payload_size, (int)(the_end - now)));
@@ -78,19 +73,16 @@ int main(int argc, char *argv[]) {
 				pack.add_ip_header(sin.sin_addr, ip_id);
 				pack.ip_header.ip_sum = cksum(&pack, pack.ip_header.ip_len);
 				
-				
-					if (send(s, &pack, pack.ip_header.ip_len, MSG_NOSIGNAL) < 0)
-					{
-						close(s);
-						err_quit("failed to send");
-					}
-				// cout << sizeof(ip) << " " << sizeof(my_header) << endl;
-				// cout << id << " " << frag << endl;
-				// cout << pack.ip_header.ip_len << " " << pack.my_hdr.frag_len << endl;
+				// terminate if server closed
+				if (send(s, &pack, pack.ip_header.ip_len, MSG_NOSIGNAL) < 0) {
+					close(s);
+					err_quit("failed to send");
+				}
 			}
-			// cout << "send " << id << endl;
+			// assume that the server needs time to process the data
 			usleep(2000);
 		}
+		// assume that the server needs time to process the data
 		sleep(1);
 	}
 

@@ -53,17 +53,18 @@
     3. 終止機制：當server收到所有檔案便會持續傳送大小為1的資料，client收到後便會自行結束。
 
 ## Lab 9 - Online Sudoku
-- 目標：以Sudoku為媒介，練習實作和server實時互動的client端
-- 實作內容：以TCP連線，透過server給定的指令進行互動，獲取題目和輸出答案
+- 目標：以Sudoku為媒介，練習實作和server實時互動的client端。
+- 實作內容：以TCP連線，透過server給定的指令進行互動，獲取題目和輸出答案。
 
-## Lab 10
+## Lab 10 - Revisiting Lab 8 via Broadcast and Raw Socket
+- 目標：以broadcast的方式，運用raw socket重現Lab 8（需自行填寫ip header），但這次網路環境較優良。
+- 實作內容：架構上和Lab 8類似，但須以broadcast的方式收發封包，因為網路環境良好，server不再傳送request給client，實作的難點變為如何填寫ip header和如何控制傳輸速度以保證server的receiving buffer不會因為沒有空位而丟棄封包。
+- 實作心得：這次用更加物件導向的方式撰寫程式，並活用Lab 2學到的__attribute__((packed))來處理封包，有集整門課之大成的感覺，模組化的寫法十分令人快樂，不知不覺間，自己也成長了，寫的程式終於有些像樣。
+
+## Hw 1 - IRC
 - 目標：
 - 實作內容：
 
-## Hw 1
-- 目標：
-- 實作內容：
-
-## Hw 2
+## Hw 2 - DNS server
 - 目標：
 - 實作內容：
