@@ -1,5 +1,5 @@
 # Intro to Network programming
-共有10個lab、兩個作業
+
 ## Lab 1 -- Find Magic Packet
 - 目標：熟悉docker和wireshark/tcpdump的運作，並瞭解如何錄製封包、解析封包。
 - 實作內容：和老師的server互動，截錄封包並找出最特別的一個。
@@ -60,11 +60,3 @@
 - 目標：以broadcast的方式，運用raw socket重現Lab 8（需自行填寫ip header），但這次網路環境較優良。
 - 實作內容：架構上和Lab 8類似，但須以broadcast的方式收發封包，因為網路環境良好，server不再傳送request給client，實作的難點變為如何填寫ip header和如何控制傳輸速度以保證server的receiving buffer不會因為沒有空位而丟棄封包。
 - 實作心得：這次用更加物件導向的方式撰寫程式，並活用Lab 2學到的__attribute__((packed))來處理封包，有集整門課之大成的感覺，模組化的寫法十分令人快樂，不知不覺間，自己也成長了，寫的程式終於有些像樣。
-
-## Hw 1 - IRC
-- 目標：
-- 實作內容：
-
-## Hw 2 - DNS server
-- 目標：
-- 實作內容：
