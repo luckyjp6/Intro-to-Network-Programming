@@ -25,34 +25,27 @@ int Row[10][10] = {0}, Col[10][10] = {0}, Box[10][10] = {0};
 int fixed[Max];
 int Ans = 0;
 
-int check_space(int index, int num)
-{
+int check_space(int index, int num) {
     int row = index/9, col = index%9;
-    for (int i = 0; i < 9; i++)
-    {
+    for (int i = 0; i < 9; i++) {
         if (board[i*9+col] == num) return 0;
     }
 }
 
-int check_end()
-{
-    printf("in check end\n");
-    for (int i = 0; i < 9; i++)
-    {
-        for (int j = 1; j <= 9; j++)
-        {
+int check_end() {
+    for (int i = 0; i < 9; i++) {
+        for (int j = 1; j <= 9; j++) {
             if (!Row[i][j]) return 0;
             if (!Col[i][j]) return 0;
             if (!Box[i][j]) return 0;
         }        
     }
 
-    printf("success\n");
     return 1;
 }
 
-int SolveSudoku(int now)
-{
+// recursivly solve the Sudoku
+int SolveSudoku(int now) {
     if (now >= Max) return check_end();
     
     int space = now;
@@ -61,8 +54,7 @@ int SolveSudoku(int now)
 
     int r = space / 9, c = space % 9;
     int b = Box_index(r, c);
-    for (int num = 1; num <= 9; num++)
-    {
+    for (int num = 1; num <= 9; num++) {
         if (Row[r][num]) continue;
         if (Col[c][num]) continue;
         if (Box[b][num]) continue;
@@ -85,8 +77,7 @@ int SolveSudoku(int now)
     return 0;
 }
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
 	int					unix_d;
 	struct sockaddr_un	unix_addr;
 
@@ -96,21 +87,20 @@ int main(int argc, char **argv)
 	strcpy(unix_addr.sun_path, "/sudoku.sock");
 	connect(unix_d, (struct sockaddr*) &unix_addr, sizeof(unix_addr));
     
-    char b[10000]; //  = "ok: ..91..3.6.246.7.197.6..82.513.8697.445.213.689.8475123...74...12.13865.7.7.59..8.";
+    char b[10000];
 
+    // aquire Sudoku question
     memset(b, '\0', 10000);
     write(unix_d, "S", 1);
     read(unix_d, b, 100);
 
     char *b_ptr = b+4;
 
-    for (int i = 0; i < 9; i++)
-    {
-        for (int j = 0; j < 9; j++)
-        {
+    // store the board
+    for (int i = 0; i < 9; i++) {
+        for (int j = 0; j < 9; j++) {
             int index = i*9+j;
-            if (b_ptr[index] == '.') 
-            {
+            if (b_ptr[index] == '.') {
                 board[index] = 0;
             }
             else {
@@ -124,21 +114,12 @@ int main(int argc, char **argv)
         }
     }
     
+    // solve Sudoku
     SolveSudoku(0);
     
-    printf("\nans:\n");
-    for (int i = 0; i < 9; i++)
-    {
-        for (int j = 0; j < 9; j++)
-            printf("%d ", board[i*9+j]);
-        printf("\n");
-    }
-        
-
-    for (int i = 0; i < 9; i++)
-    {
-        for (int j = 0; j < 9; j++)
-        {
+    // send the answer
+    for (int i = 0; i < 9; i++) {
+        for (int j = 0; j < 9; j++) {
             int index = i*9+j;
             if (fixed[index]) continue;
             char msg[100];
@@ -148,7 +129,7 @@ int main(int argc, char **argv)
         }
     }
 
-
+    // ask the server to check the answer
     write(unix_d, "C", 1);
     
 	exit(0);
