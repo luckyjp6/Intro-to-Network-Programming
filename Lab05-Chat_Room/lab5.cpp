@@ -116,11 +116,11 @@ void error_cmd(char *cmd, int to) {
 }
 
 int main(int argc, char **argv) {
-	int					listenfd, connfd;
-	pid_t				childpid;
-	sockaddr_in	        cliaddr, servaddr;
-	socklen_t			clilen = sizeof(cliaddr);
-	void				sig_chld(int);
+	int		listenfd, connfd;
+	pid_t		childpid;
+	sockaddr_in	cliaddr, servaddr;
+	socklen_t	clilen = sizeof(cliaddr);
+	void		sig_chld(int);
 
     if (argc < 2) {
         printf("Usage: ./a.out [port]\n");
