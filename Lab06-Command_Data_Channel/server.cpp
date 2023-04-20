@@ -23,7 +23,7 @@
 #define MSG_SIZE 550
 
 using namespace std;
-
+ 
 int maxi, num_user;
 long long int byte_counter = 0;
 pollfd client[OPEN_MAX];

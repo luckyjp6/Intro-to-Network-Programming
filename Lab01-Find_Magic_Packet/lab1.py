@@ -26,7 +26,7 @@ for i, value in enumerate(data_split):
     else:
         ttl_dic[ttl] += 1
     index_dic[ttl] = i
-
+ 
 # get the unique ttl
 unique_ttl = [key for key, value in ttl_dic.items() if value == 1][0]
 # get the packet id owns the unique ttl

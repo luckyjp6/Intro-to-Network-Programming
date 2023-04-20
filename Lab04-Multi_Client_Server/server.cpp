@@ -14,7 +14,7 @@
 #include <fcntl.h>
 
 using namespace std;
-
+ 
 void sig_chld(int signo)
 {
 	pid_t	pid;

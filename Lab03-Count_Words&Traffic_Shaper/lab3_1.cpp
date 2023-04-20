@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
     int end_offset = 0;
     char buf;
     while (true) {
-
+ 
         read(sock_fd, &buf, 1);
         CC++; // count how many words we get
         

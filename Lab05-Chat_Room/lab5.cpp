@@ -20,7 +20,7 @@
 
 #define OPEN_MAX 1024
 #define MSG_SIZE 300
-
+ 
 struct Client_info {
     char name[25];
     sockaddr_in addr;

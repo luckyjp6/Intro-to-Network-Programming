@@ -23,7 +23,7 @@
 #define MSG_SIZE 550
 #define MY_CONNECTION 55
 #define GARBAGE_SIZE 50000
-
+ 
 int data[MY_CONNECTION];
 int command;
 

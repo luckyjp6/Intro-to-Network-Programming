@@ -19,7 +19,7 @@
 #define Max 81
 
 int Box_index(int i, int j) {return (i/3)*3+j/3;}
-
+ 
 int board[Max];
 int Row[10][10] = {0}, Col[10][10] = {0}, Box[10][10] = {0};
 int fixed[Max];

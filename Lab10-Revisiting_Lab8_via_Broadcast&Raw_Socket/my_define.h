@@ -28,7 +28,7 @@ struct my_header {
         frag_num = frag_n; 
         file_total_len = total_l;
         frag_len = frag_l;
-    }
+    } 
 }__attribute__((packed));
 
 struct my_packet {

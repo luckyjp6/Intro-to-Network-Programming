@@ -67,7 +67,7 @@ int main(int argc, char *argv[]) {
 		return -fprintf(stderr, "** cannot convert IPv4 address for %s\n", argv[1]);
 	}
 	if((s = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0) err_quit("socket");
-
+ 
 	// set socket option
 	int snd_size = 1024*1024;
     if (setsockopt(s, SOL_SOCKET, SO_SNDBUF, &snd_size, sizeof(snd_size)) < 0) err_quit("failed to set send buffer size");

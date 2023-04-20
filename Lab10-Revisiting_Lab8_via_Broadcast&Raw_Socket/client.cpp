@@ -23,7 +23,7 @@ struct my_file {
 		close(oo);
 	}
 };
-
+ 
 my_file f[1000];
 
 int main(int argc, char *argv[]) {

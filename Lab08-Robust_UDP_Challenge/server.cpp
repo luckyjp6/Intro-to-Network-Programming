@@ -113,7 +113,7 @@ int main(int argc, char *argv[]) {
             sendto(s, reply, strlen(reply), 0, (struct sockaddr*) &csin, csinlen);
         }
 	}
-
+ 
     while (sendto(s, "f", 1, 0, (struct sockaddr*) &csin, csinlen) > 0);
 	close(s);
 
