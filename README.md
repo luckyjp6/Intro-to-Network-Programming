@@ -1,6 +1,6 @@
 # Intro to Network programming
 
-## Lab 1 -- Find Magic Packet
+## Lab 1 -- Find the Magic Packet
 - 目標：熟悉docker和wireshark/tcpdump的運作，並瞭解如何錄製封包、解析封包。
 - 實作內容：和老師的server互動，截錄封包並找出最特別的一個。
 ***
